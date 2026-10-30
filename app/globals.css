@@ -1,26 +1,88 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
+
+  /* Brand */
+  --wood: #513625;
+  --wood-hover: #513625;
+  --ember: #e87524;
+  --green: #4caf50;
+
+  /* Semantic surfaces and text */
+  --surface: #fffdf8;
+  --surface-alt: #f3e8d5;
+  --inverse: #171717;
+  --ink: #171717;
+  --ink-inverse: #fffdf8;
+  --on-accent: #171717;
+  --line: rgba(23, 23, 23, 0.12);
+
+  --background: var(--surface);
+  --foreground: var(--ink);
+}
+
+.dark {
+  color-scheme: dark;
+
+  --wood: #c9a27c;
+  --wood-hover: #5a3f2b;
+  --ember: #f08a3c;
+  --green: #5dc264;
+
+  --surface: #121212;
+  --surface-alt: #1b1815;
+  --inverse: #0a0a0a;
+  --ink: #f5efe4;
+  --ink-inverse: #f5efe4;
+  --on-accent: #171717;
+  --line: rgba(245, 239, 228, 0.16);
+
+  --background: var(--surface);
+  --foreground: var(--ink);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-alt: var(--surface-alt);
+  --color-inverse: var(--inverse);
+  --color-ink: var(--ink);
+  --color-ink-inverse: var(--ink-inverse);
+  --color-on-accent: var(--on-accent);
+  --color-line: var(--line);
+  --color-wood: var(--wood);
+  --color-wood-hover: var(--wood-hover);
+  --color-ember: var(--ember);
+  --color-green: var(--green);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

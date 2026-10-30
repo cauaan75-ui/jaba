@@ -1,69 +1,137 @@
-import Image from "next/image";
+import Header from "@/components/Header";
+import Hero from "@/components/Hero";
+import About from "@/components/About";
+import Menu from "@/components/Menu";
+import Highlights from "@/components/Highlights";
+import ChefTips from "@/components/ChefTips";
+import Promotions from "@/components/Promotions";
+import Gallery from "@/components/Gallery";
+import Reviews from "@/components/Reviews";
+import Reservations from "@/components/Reservations";
+import Delivery from "@/components/Delivery";
+import Location from "@/components/Location";
+import Hours from "@/components/Hours";
+import Contact from "@/components/Contact";
+import FinalCTA from "@/components/FinalCTA";
+import Footer from "@/components/Footer";
+import FloatingWhatsApp from "@/components/FloatingWhatsApp";
+import { restaurantConfig } from "@/lib/config";
+
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://bardojaba.com.br";
+
+function isFilled(value: string | null | undefined): value is string {
+  return typeof value === "string" && value.length > 0 && !value.includes("[PREENCHER");
+}
+
+const dayNames: Record<string, string> = {
+  monday: "Monday",
+  tuesday: "Tuesday",
+  wednesday: "Wednesday",
+  thursday: "Thursday",
+  friday: "Friday",
+  saturday: "Saturday",
+  sunday: "Sunday",
+};
+
+function buildRestaurantJsonLd() {
+  const { name, tagline, whatsapp, phone, instagram, address, hours, seo } =
+    restaurantConfig;
+
+  const openingHoursSpecification = Object.entries(hours)
+    .filter(
+      ([, day]) => !day.closed && isFilled(day.open) && isFilled(day.close),
+    )
+    .map(([day, dayHours]) => ({
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: `https://schema.org/${dayNames[day]}`,
+      opens: dayHours.open,
+      closes: dayHours.close,
+    }));
+
+  const sameAs = isFilled(instagram)
+    ? [`https://instagram.com/${instagram}`]
+    : undefined;
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "Restaurant",
+    name,
+    slogan: tagline,
+    description: seo.description,
+    url: siteUrl,
+    image: `${siteUrl}/opengraph-image`,
+    servesCuisine: ["Brasileira", "Churrasco"],
+    priceRange: "$$",
+    hasMenu: `${siteUrl}/#cardapio`,
+    ...(isFilled(phone)
+      ? { telephone: phone }
+      : isFilled(whatsapp)
+        ? { telephone: `+${whatsapp}` }
+        : {}),
+    ...(isFilled(address.street) && isFilled(address.city)
+      ? {
+          address: {
+            "@type": "PostalAddress",
+            streetAddress: address.street,
+            addressLocality: address.city,
+            addressRegion: isFilled(address.state) ? address.state : undefined,
+            postalCode: isFilled(address.zipCode) ? address.zipCode : undefined,
+            addressCountry: "BR",
+          },
+        }
+      : {}),
+    ...(address.coordinates.lat && address.coordinates.lng
+      ? {
+          geo: {
+            "@type": "GeoCoordinates",
+            latitude: address.coordinates.lat,
+            longitude: address.coordinates.lng,
+          },
+        }
+      : {}),
+    ...(openingHoursSpecification.length > 0
+      ? { openingHoursSpecification }
+      : {}),
+    ...(sameAs ? { sameAs } : {}),
+  };
+}
 
 export default function Home() {
+  const jsonLd = buildRestaurantJsonLd();
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+    <div className="flex flex-col min-h-screen pb-16 lg:pb-0">
+      <a
+        href="#inicio"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:rounded-full focus:bg-ember focus:px-6 focus:py-3 focus:font-semibold focus:text-on-accent"
+      >
+        Pular para o conteúdo
+      </a>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
+      <Header />
+      <main className="flex-1">
+        <Hero />
+        <About />
+        <Highlights />
+        <Menu />
+        <ChefTips />
+        <Promotions />
+        <Gallery />
+        <Reviews />
+        <Reservations />
+        <Delivery />
+        <Location />
+        <Hours />
+        <Contact />
+        <FinalCTA />
       </main>
+      <Footer />
+      <FloatingWhatsApp />
     </div>
   );
 }
